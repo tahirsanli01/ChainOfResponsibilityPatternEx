@@ -1,0 +1,23 @@
+[
+  {
+    "HandlerType": "GrayScaleHandler",
+    "Data": {
+      "Property1": "Value1",
+      "Property2": "Value2"
+    }
+  },
+  {
+    "HandlerType": "MonoChromeHandler",
+    "Data": {
+      "Property3": "Value3",
+      "Property4": "Value4"
+    }
+  },
+  {
+    "HandlerType": "ValidationHandler",
+    "Data": {
+      "Property5": "Value5",
+      "Property6": "Value6"
+    }
+  }
+]
