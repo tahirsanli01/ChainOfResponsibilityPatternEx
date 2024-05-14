@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,11 +20,8 @@ namespace ChainOfResponsibilityPatternEx
             authenticationHandler.SetNextHandler(authorizationHandler);
             authorizationHandler.SetNextHandler(validationHandler);
 
-            // Create a request
-            var request = new Request { Content = "Sample request" };
-
             // Process the request
-            authenticationHandler.HandleRequest(request);
+            authenticationHandler.HandleRequest();
         }
     }
 
@@ -31,7 +29,15 @@ namespace ChainOfResponsibilityPatternEx
 
 
 
-
+    [AttributeUsage(AttributeTargets.Method, Inherited = false)]
+    public class Config : Attribute
+    {
+        public string _name;
+        public Config(string name)
+        {
+            _name = name;
+        }
+    }
 
 
 
@@ -42,12 +48,13 @@ namespace ChainOfResponsibilityPatternEx
     public interface IRequestHandler
     {
         void SetNextHandler(IRequestHandler handler);
-        void HandleRequest(Request request);
+        void HandleRequest();
     }
 
     // Abstract base class for concrete handlers
     public abstract class RequestHandlerBase : IRequestHandler
     {
+        Dictionary<string, object> _data = new Dictionary<string, object>();
         private IRequestHandler _nextHandler;
 
         public void SetNextHandler(IRequestHandler handler)
@@ -55,17 +62,23 @@ namespace ChainOfResponsibilityPatternEx
             _nextHandler = handler;
         }
 
-        public virtual void HandleRequest(Request request)
+        public virtual void HandleRequest()
         {
-            Request req = ProcessRequest(request);
+            Type methodNextAttribute = this.GetType();
+            var x = methodNextAttribute.GetNestedTypes();
+            var result = methodNextAttribute.GetRuntimeMethods();
+            var xc = result.ToList()[0];
+            var result2 = xc.GetCustomAttribute<Config>();
+
+            ProcessRequest(_data[result2._name]);
 
             if (_nextHandler != null)
             {
-                _nextHandler.HandleRequest(req);
+                _nextHandler.HandleRequest();
             }
         }
 
-        protected abstract Request ProcessRequest(Request request);
+        protected abstract void ProcessRequest(object name);
     }
 
 
@@ -73,41 +86,33 @@ namespace ChainOfResponsibilityPatternEx
     // Concrete handler: Authentication Handler
     public class AuthenticationHandler : RequestHandlerBase
     {
-        protected override Request ProcessRequest(Request request)
+        [Config("AuthenticationHandlerData")]
+        protected override void ProcessRequest(object data)
         {
             Console.WriteLine("Authentication handler processing request");
             // Perform authentication logic
-            return request;
         }
     }
 
     // Concrete handler: Authorization Handler
     public class AuthorizationHandler : RequestHandlerBase
     {
-        protected override Request ProcessRequest(Request request)
+        [Config("AuthorizationHandlerData")]
+        protected override void ProcessRequest(object data)
         {
             Console.WriteLine("Authorization handler processing request");
             // Perform authorization logic
-            return request;
         }
     }
 
     // Concrete handler: Validation Handler
     public class ValidationHandler : RequestHandlerBase
     {
-        protected override Request ProcessRequest(Request request)
+        [Config("ValidationHandlerData")]
+        protected override void ProcessRequest(object data)
         {
             Console.WriteLine("Validation handler processing request");
             // Perform validation logic
-            return request;
         }
     }
-
-    // Request class
-    public class Request
-    {
-        public string Content { get; set; }
-        // Other request properties
-    }
-
 }
