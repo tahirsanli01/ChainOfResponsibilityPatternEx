@@ -57,15 +57,15 @@ namespace ChainOfResponsibilityPatternEx
 
         public virtual void HandleRequest(Request request)
         {
-            ProcessRequest(request);
+            Request req = ProcessRequest(request);
 
             if (_nextHandler != null)
             {
-                _nextHandler.HandleRequest(request);
+                _nextHandler.HandleRequest(req);
             }
         }
 
-        protected abstract void ProcessRequest(Request request);
+        protected abstract Request ProcessRequest(Request request);
     }
 
 
@@ -73,30 +73,33 @@ namespace ChainOfResponsibilityPatternEx
     // Concrete handler: Authentication Handler
     public class AuthenticationHandler : RequestHandlerBase
     {
-        protected override void ProcessRequest(Request request)
+        protected override Request ProcessRequest(Request request)
         {
             Console.WriteLine("Authentication handler processing request");
             // Perform authentication logic
+            return request;
         }
     }
 
     // Concrete handler: Authorization Handler
     public class AuthorizationHandler : RequestHandlerBase
     {
-        protected override void ProcessRequest(Request request)
+        protected override Request ProcessRequest(Request request)
         {
             Console.WriteLine("Authorization handler processing request");
             // Perform authorization logic
+            return request;
         }
     }
 
     // Concrete handler: Validation Handler
     public class ValidationHandler : RequestHandlerBase
     {
-        protected override void ProcessRequest(Request request)
+        protected override Request ProcessRequest(Request request)
         {
             Console.WriteLine("Validation handler processing request");
             // Perform validation logic
+            return request;
         }
     }
 
